@@ -22,11 +22,10 @@ jobs:
         ports:
           - 1234:5432
         options: >-
-        --health-cmd pg_isready 
-        --health-interval 10s 
-        --health-timeout 5s 
-        --health-retries 5
-
+          --health-cmd="pg_isready"
+          --health-interval="10s"
+          --health-timeout="5s"
+          --health-retries="5"
 
     steps:
 
@@ -41,13 +40,15 @@ jobs:
 
     - name: Install golang migrate
       run: |
-      curl -L https://github.com/golang-migrate/migrate/releases/download/v4.18.1/migrate.linux-amd64.tar.gz | tar xvz
-      sudo mv migrate.linux-amd64 /usr/bin
-      which migrate
-
+        curl -L https://github.com/golang-migrate/migrate/releases/download/v4.18.1/migrate.linux-amd64.tar.gz | tar xvz
+        sudo mv migrate.linux-amd64 /usr/bin
+        which migrate
 
     - name: Run migrations
-      run: make migrateup
+      run: |
+        migrate -path db/migrations -database "postgres://root:seecret@localhost:1234/simple_bank?sslmode=disable" up
 
     - name: Test
-      run: go test -v ./...
+      run: |
+        export DB_URL="postgres://root:seecret@localhost:1234/simple_bank?sslmode=disable"
+        go test -v ./...
