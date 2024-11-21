@@ -2,22 +2,20 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"testing"
 
+	"github.com/go_dev/simplebank/util"
 	"github.com/stretchr/testify/require"
 )
 
-func TestCreateAccount(t *testing.T) {
-
-	conn, _ := sql.Open(dbDriver, dbSource)
-	testQueries = New(conn)
+func createRandomAccount(t *testing.T) Account {
+	user := createRandomUser(t)
 
 	arg := CreateAccountParams{
-		Owner:    "Tom",
-		Balance:  100,
-		Currency: "USD",
+		Owner:    user.Username,
+		Balance:  util.RandomMoney(),
+		Currency: util.RandomCurrency(),
 	}
 
 	account, err := testQueries.CreateAccount(context.Background(), arg)
@@ -30,24 +28,20 @@ func TestCreateAccount(t *testing.T) {
 
 	require.NotZero(t, account.ID)
 	require.NotZero(t, account.CreatedAt)
+
+	return account
+}
+
+func TestCreateAccount(t *testing.T) {
+	createRandomAccount(t)
 }
 
 func TestGetAccount(t *testing.T) {
 
-	conn, _ := sql.Open(dbDriver, dbSource)
-	testQueries = New(conn)
-
-	arg := CreateAccountParams{
-		Owner:    "Tom",
-		Balance:  100,
-		Currency: "USD",
-	}
-
-	account, err := testQueries.CreateAccount(context.Background(), arg)
-	require.NoError(t, err)
-
+	account := createRandomAccount(t)
 	account2, err := testQueries.GetAccount(context.Background(), account.ID)
 
+	require.NoError(t, err)
 	fmt.Printf("account: %v\n", account)
 	fmt.Printf("account2: %v\n", account2)
 
@@ -55,19 +49,9 @@ func TestGetAccount(t *testing.T) {
 
 func TestDeleteAccount(t *testing.T) {
 
-	conn, _ := sql.Open(dbDriver, dbSource)
-	testQueries = New(conn)
+	account := createRandomAccount(t)
 
-	arg := CreateAccountParams{
-		Owner:    "Tom",
-		Balance:  100,
-		Currency: "USD",
-	}
-
-	account, err := testQueries.CreateAccount(context.Background(), arg)
-	require.NoError(t, err)
-
-	err = testQueries.DeleteAccount(context.Background(), account.ID)
+	err := testQueries.DeleteAccount(context.Background(), account.ID)
 	require.NoError(t, err)
 
 	account2, err := testQueries.GetAccount(context.Background(), account.ID)

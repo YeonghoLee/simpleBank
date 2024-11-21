@@ -13,4 +13,10 @@ migratedown :
 sqlc :
 	sqlc generate
 
-.PHONY: createdb dropdb migrateup migratedown sqlc
+server :
+	go run main.go
+
+mock :
+	mockgen -package mockdb -destination db/mock/store.go github.com/go_dev/simplebank/db/sqlc Store
+
+.PHONY: createdb dropdb migrateup migratedown sqlc server mock
