@@ -6,12 +6,12 @@ import (
 
 	"github.com/go_dev/simplebank/api"
 	db "github.com/go_dev/simplebank/db/sqlc"
-	"github.com/go_dev/simplebank/util"
+	"github.com/go_dev/simplebank/utils"
 )
 
 func main() {
 
-	config, err := util.LoadConfig(".")
+	config, err := utils.LoadConfig(".")
 	if err != nil {
 		log.Fatal("cannot load config:", err)
 	}
@@ -22,7 +22,10 @@ func main() {
 	}
 
 	store := db.NewStore(conn)
-	server := api.NewServer(store)
+	server, err := api.NewServer(config, store)
+	if err != nil {
+		log.Fatal("cannot create server:", err)
+	}
 
 	err = server.Start(config.ServerAdress)
 	if err != nil {

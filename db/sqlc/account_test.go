@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/go_dev/simplebank/util"
+	"github.com/go_dev/simplebank/utils"
 	"github.com/stretchr/testify/require"
 )
 
@@ -14,8 +14,8 @@ func createRandomAccount(t *testing.T) Account {
 
 	arg := CreateAccountParams{
 		Owner:    user.Username,
-		Balance:  util.RandomMoney(),
-		Currency: util.RandomCurrency(),
+		Balance:  utils.RandomMoney(),
+		Currency: utils.RandomCurrency(),
 	}
 
 	account, err := testQueries.CreateAccount(context.Background(), arg)
